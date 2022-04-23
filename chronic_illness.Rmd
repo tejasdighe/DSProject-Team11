@@ -1,0 +1,225 @@
+---
+title: "DS Project Team 11"
+author: "[Evan Patel, Daksh Verma, Saurabh Rane, Sujay Shah, Tejas Dighe, Maxine Attobrah]"
+output: pdf_document
+---
+
+# DS Project Team 11
+# User input information on their chronic illness from Flaredown app dataset 
+
+
+```{r setup, include = TRUE, warning = FALSE, message = FALSE}
+# libraries needed
+library(tidyverse)
+library(dplyr)
+
+#data
+chronic_illness <- read_csv("chronic_illness_data_split_15050.csv")
+
+```
+```{r, warning = FALSE, message = FALSE}
+
+# COLUMNS
+# trackable_value: inludes symptom or conditon rating from 0- 4, dose from treatments (units are mg or mcg) [continous variable]
+# age
+# sex
+# country
+# checkin_date 
+# user_id: idenitfies user?
+# trackable_id: idenitfies user?
+# condition
+# symptom
+# weather
+# Food : food items that cause conditions?
+# treatment
+# tag
+# HBI
+
+```
+
+## Inital wrangling of daa
+The Flaredown app labels users inputs as conditions, symptoms and treatments which was all in the the trackable_type column. In this section we make those labels into columns to get a better understanding of how the conditions, symptoms and treatments affect each other. 
+
+
+```{r, warning = FALSE, message = FALSE}
+# data before
+chronic_illness
+
+# dat after making the conditions, symptoms and treatments columns
+chronic_illness <- pivot_wider(chronic_illness, names_from=trackable_type, values_from=	
+trackable_name)
+
+# print new to csv in my folder
+write.csv(chronic_illness, "chronic_illness_data_split_columns_15050_updated.csv")
+
+```
+
+
+
+```{r, warning = FALSE, message = FALSE}
+# Age
+
+# drop any user that has an unknown age
+chronic_illness <- chronic_illness %>%
+          drop_na(age)
+
+# display the varying agaes using the app
+ggplot(chronic_illness, aes(x=age)) +
+  geom_bar()+
+  labs(title="Title: Age of people who participated in Flaredown App")
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+# country
+
+# drop users that have a unknown location
+chronic_illness <- chronic_illness %>%
+          drop_na(country)
+
+# display the number of userrs in different countries and which country has the most users
+ggplot(chronic_illness, aes(x=country)) +
+  geom_bar()+
+  labs(title="Title: Country of people who participated in Flaredown App")
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+
+# display what type of people are using the app and who is using the app the most
+ggplot(chronic_illness, aes(x=sex, colour = age)) +
+  geom_bar()+
+  geom_text(aes(label=stat(count)), stat="count", vjust=1.5, colour="red")+
+  labs(title="Title: Sex of people who participated in Flaredown App")
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+
+# display ages using the app but color code based on the users sex
+ggplot(chronic_illness, aes(x=checkin_date, y=age, colour = sex)) +
+  geom_point() +
+  labs(title="Title: Age of people who participated in Flaredown App")
+
+
+
+
+# view how which ages report having Ulcerative colitis
+chronic_illness %>%
+  filter( Condition=="Ulcerative colitis", na.rm=TRUE) %>%
+  ggplot(aes(x=checkin_date, y = age)) +
+  geom_point()
+
+
+```
+## Display the unique countries, treatments, conditions, symptoms, foods, and tags
+
+
+```{r, warning = FALSE, message = FALSE}
+
+unique(chronic_illness$country)
+```
+
+```{r, warning = FALSE, message = FALSE}
+unique(chronic_illness$Treatment)
+```
+
+```{r, warning = FALSE, message = FALSE}
+unique(chronic_illness$Condition)
+```
+
+```{r, warning = FALSE, message = FALSE}
+unique(chronic_illness$Symptom)
+```
+
+```{r, warning = FALSE, message = FALSE}
+unique(chronic_illness$Food)
+```
+
+```{r, warning = FALSE, message = FALSE}
+unique(chronic_illness$Tag)
+```
+
+```{r, warning = FALSE, message = FALSE}
+
+# HBI does not have any value in this data since no one filled it out
+unique(chronic_illness$HBI)
+
+```
+
+## RANK showing the most critical items to pay attention to
+
+```{r, warning = FALSE, message = FALSE}
+
+# display the top conditions first
+chronic_illness %>%
+ group_by(Condition) %>%
+                summarize(
+                n=n()) %>%
+                # arrange so that the biggest 
+                # observation is shown first
+                arrange(desc(n))
+
+
+# display most used treatments first
+chronic_illness %>%
+ group_by(Treatment) %>%
+                summarize(
+                n=n()) %>%
+                # arrange so that the biggest 
+                # observation is shown first
+                arrange(desc(n))
+
+
+# dusplay the top symptoms first
+chronic_illness %>%
+ group_by(Symptom) %>%
+                summarize(
+                n=n()) %>%
+                # arrange so that the biggest 
+                # observation is shown first
+                arrange(desc(n))
+
+
+# display which country users are using the app the most
+chronic_illness %>%
+ group_by(country) %>%
+                summarize(
+                n=n()) %>%
+                # arrange so that the biggest 
+                # observation is shown first
+                arrange(desc(n))
+
+
+# display which foods are causing the most reactions
+chronic_illness %>%
+ group_by(Food) %>%
+                summarize(
+                n=n()) %>%
+                # arrange so that the biggest 
+                # observation is shown first
+                arrange(desc(n))
+
+
+
+# display the top environmental factors that does not occur everyday entered by users 
+chronic_illness %>%
+ group_by(Tag) %>%
+                # move tsi to the front of the dataframe
+               # tell me how many observations 
+                # there are for each tsi value
+                summarize(
+                n=n()) %>%
+                # arrange so that the biggest 
+                # observation is shown first
+                arrange(desc(n))
+
+```
+
+
+
+
+
