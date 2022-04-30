@@ -1,0 +1,198 @@
+---
+title: "DS Project Team 11"
+author: "[Evan Patel, Daksh Verma, Saurabh Rane, Sujay Shah, Tejas Dighe, Maxine Attobrah]"
+output: pdf_document
+---
+
+# DS Project Team 11
+
+
+```{r setup, include = TRUE, warning = FALSE, message = FALSE}
+# libraries needed
+library(tidyverse)
+library(dplyr)
+
+
+# COLUMNS:
+# age
+# sex
+# bmi
+# children
+# smoker
+# region
+# charges
+
+```
+
+## Inital wrangling of data and some analysis
+
+
+```{r, warning = FALSE, message = FALSE}
+#data
+insurance <- read_csv("insurance.csv")
+
+head(insurance)
+
+# check if any NAs in data
+(find_nas <- apply(insurance,2, function(x) any(is.na(x))))
+
+
+```
+
+
+
+```{r, warning = FALSE, message = FALSE}
+# Age
+
+# maximum age
+max(insurance$age)
+
+# minimum age
+min(insurance$age)
+
+# display the varying ages
+ggplot(insurance, aes(x=age)) +
+  geom_bar()+
+  labs(title="Title: Age")
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+# Number of smokers
+
+# display the number of userrs in different countries and which country has the most users
+ggplot(insurance, aes(x=smoker)) +
+  geom_bar()+
+  geom_text(aes(label=stat(count)), stat="count", vjust=1.5, colour="red")+
+  labs(title="Title: Smokers")
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+
+# displauy how many males vs females
+ggplot(insurance, aes(x=sex, colour = age)) +
+  geom_bar()+
+  geom_text(aes(label=stat(count)), stat="count", vjust=1.5, colour="red")+
+  labs(title="Title: Sex")
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+
+# display ages 
+ggplot(insurance, aes(x=age, y=charges, colour = sex)) +
+  geom_point() +
+  labs(title="Title: Age vs Cost of Insuraunce")
+```
+
+```{r, warning = FALSE, message = FALSE}
+
+# display ages 
+ggplot(insurance, aes(x=age, y=charges, colour = sex)) +
+  geom_boxplot() +
+  labs(title="Title: Age vs Cost of Insuraunce ")
+
+
+ggplot(insurance, aes(x=age, y=log(charges), colour = sex)) +
+  geom_boxplot() +
+  labs(title="Title: Age vs log(Cost of Insuraunce)")
+```
+```{r, warning = FALSE, message = FALSE}
+
+# display ages  
+ggplot(insurance, aes(x=age, y=charges, colour = smoker)) +
+  geom_boxplot() +
+  labs(title="Title: Age vs Cost of Insuraunce")
+
+
+ggplot(insurance, aes(x=age, y=log(charges), colour = smoker)) +
+  geom_boxplot() +
+  labs(title="Title: Age vs log(Cost of Insuraunce)")
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+
+# number of children people have
+unique(insurance$children)
+
+# how many regions are in dataset
+unique(insurance$region)
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+# display difference of cost if insurance based on age and if they smoke
+ggplot(insurance, aes(x=age, y=charges, colour = smoker)) +
+  geom_point() +
+  labs(title="Title: Cost of insurance based on age and smoker")
+```
+
+
+
+```{r, warning = FALSE, message = FALSE}
+
+# display difference of cost if insurance based on age and number of children
+ggplot(insurance, aes(x=age, y=charges, colour = children)) +
+  geom_point() +
+  labs(title="Title: Cost of insurance based on age and number of children")
+```
+
+```{r, warning = FALSE, message = FALSE}
+
+# display cost of insurance based on age and if they smoke
+ggplot(data = insurance) +
+  geom_point(mapping = aes(x = age, y = charges, color=smoker)) +
+  # seperate data based on number of children. Each plot is the number of children the person has
+  facet_wrap(~ children)
+
+```
+
+```{r, warning = FALSE, message = FALSE}
+
+# prepare dataset for correlation matrix
+insurance_dataChange_for_correlation <- insurance
+# if female make it a 1 but if male make it a 0
+insurance_dataChange_for_correlation$sex <- ifelse(insurance_dataChange_for_correlation$sex=="female", 1,0)
+
+# if smoker make it a 1 but if non-smoker make it a 0
+insurance_dataChange_for_correlation$smoker <- ifelse(insurance_dataChange_for_correlation$smoker=="yes", 1,0)
+
+# change regions to numbers
+insurance_dataChange_for_correlation$region <- as.numeric(factor(insurance_dataChange_for_correlation$region))
+
+#show entire dataset after updates
+insurance_dataChange_for_correlation
+
+
+# create correlation matrix
+correlation_matrix <- round(cor(na.omit(insurance_dataChange_for_correlation)),2)
+
+melted_correlation_matrix <- melt(correlation_matrix)
+
+# plot correlation matrix as heatmap
+ggplot(data=melted_correlation_matrix, aes(x=Var1, y=Var2, fill=value))+
+  geom_tile()+geom_text(aes(x=Var2, y=Var1, label=value), color="white", size=2) +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank()
+  )
+
+# Based on correlation values we can see which variables have a stronger influence on the dependent variable
+# Regardless of sign, the higher the value the stronger the influence
+
+# Based on the result smoker has the strongest influencer. 
+
+```
+
+
+
+
+
+
+
+
