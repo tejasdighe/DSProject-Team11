@@ -11,7 +11,7 @@ output: pdf_document
 # libraries needed
 library(tidyverse)
 library(dplyr)
-
+library(reshape2)
 
 # COLUMNS:
 # age
